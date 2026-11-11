@@ -1,0 +1,22 @@
+# =============================================================================
+# Apache rewrite 규칙
+# - /api/*  →  /api/index.php (REST 프론트 컨트롤러)
+# - 그 외 정적 파일은 그대로 서빙
+# Nginx 사용 시 server 블록에서 location /api/ { try_files $uri /api/index.php?$query_string; }
+# =============================================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 이미 존재하는 파일/디렉터리는 그대로 통과
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # REST API
+    RewriteRule ^api(/.*)?$ api/index.php [QSA,L]
+</IfModule>
+
+# 민감 파일 직접 접근 차단
+<FilesMatch "\.(sql|md|env)$">
+    Require all denied
+</FilesMatch>
